@@ -4,7 +4,7 @@
 
 #This file parses formating file into separate rules
 
-import arguments, sys
+import arguments, sys, re
 
 def rule_parse():
 	# open formating file
@@ -14,5 +14,9 @@ def rule_parse():
 	except IOError:
 		sys.exit(2)
 
-	print 'read formating file line by line'
+	split_rules = [] #empty array for splitted rules
+	#read each line of a file and parse them into array
+	for line in ffile:
+		split_rules.append(re.split("\t+", line))
 
+	print split_rules
