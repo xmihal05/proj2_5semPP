@@ -2,6 +2,8 @@
 
 #SYN:
 
+# This file is used to parse arguments from commad line
+
 import argparse, sys
 
 # parse arguments and their options
