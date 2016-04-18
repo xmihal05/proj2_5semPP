@@ -18,11 +18,11 @@ if arguments.input_file == True:	#input file was stated
 	fin.close()
 
 else:	# input wasnt stated => read string from stdin
-	sin = sys.stdin.read()
+	sin = sys.stdin.readline()	#CITA IBA JEDEN RIADOK => JE TO SPRAVNE? o.O => kedtak skus read()
 
 if arguments.format_file == True:
 	# call function for parsinf formatting file
-	rules.rule_parse()
+	rules.rule_parse(sin)
 else:
 	#none formatting file => print input on output
-	printout.print_output(sin)
+	printout.print_output(sin, '')
