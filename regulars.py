@@ -15,6 +15,7 @@ def substitute_regs(infile, regs, rules):
 	expr_list = []	#list of chars from single expression
 	close_tag = False	#set for closing ]
 	no_tag = False	#no use of paranthesis => ()
+	starting_par = 0 #number of ( used in reg. expression
 
 	#for every element of que do
 	while len(regs) != 0:
@@ -44,8 +45,10 @@ def substitute_regs(infile, regs, rules):
 				if first == '.':
 					if first_inserted == False:
 						sys.exit(4) #error in reg. expression
-					elif no_sec == True:
+					if no_sec == True:
 						sys.exit(4) #needs another string
+					if second == '.' or second == '|':
+						sys.exit(4)	#wrong reg.expr
 					else:
 						new_expr += second
 						popfirst = True
@@ -55,6 +58,8 @@ def substitute_regs(infile, regs, rules):
 						sys.exit(4) #error in reg. expr
 					elif no_sec == True:
 						sys.exit(4) #needs second pair
+					elif second == '.' or second == '|':
+						sys.exit(4)	#wrong reg.expr
 					else:
 						new_expr += first
 						if len(expr_list) == 0:
@@ -80,6 +85,7 @@ def substitute_regs(infile, regs, rules):
 							first = second
 				
 				elif first == '(':
+					starting_par = starting_par + 1
 					if no_sec == True:
 						sys.exit(4) #none ')' used
 					else:
@@ -100,6 +106,10 @@ def substitute_regs(infile, regs, rules):
 					
 
 				elif first == ')':
+					if starting_par < 1:
+						sys.exit(4)	# ( wasnt used
+					else:
+						starting_par = starting_par - 1		
 					if no_tag != True:
 						new_expr += ')'
 					else:
@@ -116,7 +126,9 @@ def substitute_regs(infile, regs, rules):
 						sys.exit(4) #reg exprss error
 					
 					#check if next is special char or %t or %n or %s
-					if second == '.' or second == '|' or second == '!' or second == '*' or second == '+' or second == '(' or second == ')' or second == '%' or second == 't' or second == 'n' or second == 's':
+					if second == '.' or second == '|' or second == '!' \
+		 or second == '*' or second == '+' or second == '(' or second == ')' \
+		or second == '%' or second == 't' or second == 'n' or second == 's':
 						if second == '.':
 							new_expr += '\.'
 						elif second == '|':
@@ -214,7 +226,6 @@ def substitute_regs(infile, regs, rules):
 	#sort new regulars
 	sorted_regs = []
 	sorted_regs = new_regs
-	sorted_regs.sort(key=len, reverse=True)
 
 	#add rest of lists to new regular expressions
 	filled = []	#list for adding rules to regular expressions
@@ -227,21 +238,53 @@ def substitute_regs(infile, regs, rules):
 		single = []	#init single line list	
 		#pop old regular with rules	
 		elem = rules.popleft()
-		elem = deque(elem)
 
-		#pop old reg. exprss from element
-		tmp = elem.popleft()
+		#now pop all rules and leave old reg.expression behind
+		while len(elem) > 1:
+			tmp = elem.pop()
+			single.append(tmp)
+
 		#pop new regular expression for pairing
 		exprss = new_regs.popleft()
 		single.append(exprss)	#apend new regular exprss
 
-		#now pop all rules and add to new regs
-		while len(elem) > 0:
-			tmp = elem.popleft()
-			single.append(tmp)
+		filled.append(single) #append into new list
 
-		filled.append(single)
+		tmp = elem.pop() #pop old regular expression
+
+	#sort regular expression by their length
+	sorted_regs.sort(key=len, reverse=True)
+
+	#cast lists as ques
+	sorted_regs = deque(sorted_regs)
+	filled = deque(filled)	
+	sorted_rules = []	#empty list for sorted rules
+
+	while len(sorted_regs) > 0:
+		single = [] #init single rule list
+		
+		#pop sorted regular expression
+		s_reg = sorted_regs.popleft()
+		single.append(s_reg)
+		matched = False #didnt find match with other list
+
+		while matched == False:
+			#pop single rule from not sorted que
+			not_sorted = filled.popleft()
+
+			#pop regular expression from not sorted
+			ns_reg = not_sorted.pop()
+			
+			if ns_reg == s_reg:
+				matched = True #found match
+				while len(not_sorted) > 0:
+					tmp = not_sorted.pop()
+					single.append(tmp)
+				sorted_rules.append(single)
+			else: #didnt find match
+				not_sorted.append(ns_reg)	#append back into list
+				filled.append(not_sorted)	#append list back in filled list
 
 	#match, add html tags and write output into outfile
-	printout.print_output(infile,filled)
+	printout.print_output(infile,sorted_rules)
 	

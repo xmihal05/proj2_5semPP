@@ -46,60 +46,48 @@ else:
 
 count_length = len(sys.argv)	#count number of arguments
 
-if count_length > 8:	#if too many arguments are used exit 1
+if count_length > 5:	#if too many arguments are used exit 1
 	sys.exit(1)	
 
 #check if any argument was used more than once
-if (count_length == 3) and (args.br == True):	# --br must have been used more than once
-	sys.exit(1)
+if (count_length == 3):
+	if input_file == True:
+		if output_file != True and format_file != True and args.br != True:
+			sys.exit(1)
+	elif output_file == True:
+		if format_file != True and args.br != True:
+			sys.exit(1)
+	elif format_file == True:
+		if args.br != True:
+			sys.exit(1)
+	#none of the above were right so next one must be error as well
+	elif args.br == True:
+		sys.exit(1)
+	
 
 elif (count_length == 4):
-	if (args.br != True):	# --br must be used
+	if input_file == True:
+		if output_file != True and format_file != True and args.br != True:
+			sys.exit(1)
+		else:
+			if output_file == True:
+				if format_file != True and args.br != True:
+					sys.exit(1)
+			elif args.br == True:
+				if format_file != True:
+					sys.exit(1)
+			#none of above were true, this is also error
+			elif format_file == True:
+				sys.exit(1)
+
+	elif output_file == True:
+		if format_file != True or args.br != True:
+			sys.exit(1)
+	#others are errors also
+	elif format_file == True or args.br == True:
 		sys.exit(1)
-	else:
-		if input_file != True and output_file != True and format_file != True:
-			sys.exit(1)	#one of these arguments must be used in combination w br
 
 elif (count_length == 5):
-	if (args.br == True):	# br cannot be used with this number of args
+	if input_file != True or output_file != True or format_file != True or args.br != True:
 		sys.exit(1)
-	#check if none is used more than once
-	if (input_file == True):
-		if (output_file != True) and (format_file != True):
-			sys.exit(1)
-	elif (output_file == True):
-		if (input_file != True) and (format_file != True):
-			sys.exit(1)
-	elif (format_file == True):
-		if (input_file != True) and (output_file != True):
-			sys.exit(1)
-
-elif (count_length == 6):
-	#check if br is used and two different arguments!
-	if (args.br != True):
-		sys.exit(1)
-	else:
-		if (input_file == True):
-			if (output_file != True) and (format_file != True):
-				sys.exit(1)
-		elif (output_file == True):
-			if (input_file != True) and (format_file != True):
-				sys.exit(1)
-		elif (format_file == True):
-			if (input_file != True) and (output_file != True):
-				sys.exit(1)
-		else:
-			sys.exit(1)
-
-elif (count_length == 7):
-	# check if all the arguments are used except --br
-	if (args.br == True):
-		sys.exit(1)
-	else:
-		if (input_file != True) or (format_file != True) or (output_file != True):
-			sys.exit(1)
-
-elif(count_length == 8):
-	# every possible argument must be used with this number of args
-	if (input_file != True) or (format_file != True) or (output_file != True) or (args.br != True):
-		sys.exit(1)
+	
